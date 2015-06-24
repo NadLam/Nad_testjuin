@@ -13,6 +13,7 @@
 <li><a href="contact.php">Nous contacter</a></li>
 <li><a href="connexion.php">Espace client</a></li>   
 </ul>
+        
         <?php
         // put your code here
         ?>
