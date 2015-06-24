@@ -14,7 +14,7 @@
 <li><a href="connexion.php">Espace client</a></li>   
 </ul>
         
-        <?php
+       <?php
         // put your code here
         ?>
     </body>
