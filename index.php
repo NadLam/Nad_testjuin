@@ -55,29 +55,32 @@ $recup_sql = mysqli_query($mysqli,$sql) or die(mysqli_error($mysqli));
     </head>
     <body>
         <div id="content">
-            <div><h1>Télépro-photos.fr</h1> 
+            <div><h1>Bienvenue sur Télépro-photos.fr</h1> 
                             <nav>
-                    <ul>
+                    <ul id="menu-accordeon">
                         <li><a href="">Accueil</a></li>
-                        <li tabindex="0" class="menu-vertical">
-                            <ul class="onclick-menu-content" >
-                                <li><a href="">Animaux</a></li>
-                                <li><a href="">Architectures</a></li>
-                                <li><a href="">Artistiques</a></li>
-                                <li><a href="">Personnes</a></li>
-                                <li><a href="">Paysages</a></li>
-                                <li><a href="">Sports</a></li>
-                                <li><a href="">Technologies</a></li>
-                                <li><a href="">Transports</a></li>
-                                <li><a href="">Divers</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="contact.php">Contact</a></li>
-                        <li><a href="#">Espace membres</a>
+                       
+                           <ul id="menu-accordeon">
+	<li><a href="#">Catégories</a>
+		<ul><?php
+               
+               
+                       $rec= "SELECT * FROM rubriques";
+                       $result = mysqli_query($mysqli,$rec);
+
+
+    while($la = mysqli_fetch_assoc($result)){
+   echo "<li><a href='categories.php?idsection=".$la['id']."'>".$la['lintitule']."</a></li>";
+   }
+                                       
+?>
+		</ul>
+            <li><a href="contact.php">Contact</a></li>
+                        
                         <?php if (!isset($_SESSION['sid']) || $_SESSION['sid'] != session_id()) {}else{switch ($_SESSION['nom_perm2']) {
                             // si on est l'admin
                             case 0 :
-                                echo "<ul><li><a href='modif.php'>Administration</a></li><li><a href='membre.php'>Espace client</a></li><li><a href='deconnect.php'>Déconnexion</a></li></ul>";
+                                echo "<li><a href='modif.php'>Administration</a></li><li><a href='membre.php'>Espace client</a></li><li><a href='deconnect.php'>Déconnexion</a></li>";
                                 break;
                             // si on est modérateur
                             case 1:
@@ -89,6 +92,7 @@ $recup_sql = mysqli_query($mysqli,$sql) or die(mysqli_error($mysqli));
                     </ul>
                 </nav>
                 <div id="connect">
+                     
                     <?php
 // si on est pas (ou plus) connecté
                     if (!isset($_SESSION['sid']) || $_SESSION['sid'] != session_id()) {
