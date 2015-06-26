@@ -1,0 +1,9 @@
+#menu-vertical, #menu-vertical ul {
+    padding:0;
+  margin:0;
+  list-style:none;
+  width: 180px; /* seule ligne rajoutée */
+    
+    
+    
+}

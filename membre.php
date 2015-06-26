@@ -4,7 +4,31 @@ session_start();
 require_once 'config.php';
 require_once 'connect.php';
 require_once 'fonctions.php';
+// si tentative de connexion
+if (isset($_POST['lelogin'])) {
+    $lelogin = traite_chaine($_POST['lelogin']);
+    $lepass = traite_chaine($_POST['lepass']);
 
+    // vérification de l'utilisateur dans la db
+    $sql = "SELECT  u.id, u.lemail, u.lenom AS nom_perm2, u.lenom,
+		d.lenom AS nom_perm, d.lenom, d.laperm 
+	FROM utilisateur u
+		INNER JOIN droit d ON u.droit_id = d.id
+    WHERE u.lelogin='$lelogin' AND u.lepass = '$lepass';";
+    $requete = mysqli_query($mysqli, $sql)or die(mysqli_error($mysqli));
+    $recup_user = mysqli_fetch_assoc($requete);
+
+    // vérifier si on a récupèré un utilisateur
+    if (mysqli_num_rows($requete)) { // vaut true si 1 résultat (ou plus), false si 0
+        // si l'utilisateur est bien connecté
+        $_SESSION = $recup_user; // transformation des résultats de la requête en variable de session
+        $_SESSION['sid'] = session_id(); // récupération de la clef de session
+        $_SESSION['lelogin'] = $lelogin; // récupération du login (du POST après traitement)
+        // var_dump($_SESSION);
+        // redirection vers la page d'accueil (pour éviter les doubles connexions par F5)
+        header('location: ' . CHEMIN_RACINE);
+    }
+}
 // si on est pas (ou plus) connecté
 if (!isset($_SESSION['sid']) || $_SESSION['sid'] != session_id()) {
     header("location: deconnect.php");
@@ -59,7 +83,7 @@ if(isset($_POST['letitre'])&&isset($_FILES['lefichier'])){
             }
             
         }else{
-            echo 'Erreur lors de la création des images redimenssionnées';
+            echo 'Erreur lors de la création des images redimensionnées';
         }
         
     }    
@@ -99,7 +123,7 @@ if(isset($_GET['delete'])&& ctype_digit($_GET['delete'])){
 $sql = "SELECT p.*, GROUP_CONCAT(r.id) AS idrub, GROUP_CONCAT(r.lintitule SEPARATOR '|||' ) AS lintitule
     FROM photo p
 	LEFT JOIN photo_has_rubriques h ON h.photo_id = p.id
-    LEFT JOIN rubriques r ON h.rubrique_id = r.id
+    LEFT JOIN rubriques r ON h.rubriques_id = r.id
         WHERE p.utilisateur_id = ".$_SESSION['id']."
         GROUP BY p.id
         ORDER BY p.id DESC;
@@ -107,39 +131,37 @@ $sql = "SELECT p.*, GROUP_CONCAT(r.id) AS idrub, GROUP_CONCAT(r.lintitule SEPARA
 $recup_sql = mysqli_query($mysqli,$sql) or die(mysqli_error($mysqli));
 
 // récupération de toutes les rubriques pour le formulaire d'insertion
-$sql="SELECT * FROM rubriques ORDER BY lintitle ASC;";
-$recup_section = mysqli_query($mysqli, $sql);
+$sql2="SELECT * FROM rubriques ORDER BY lintitule ASC;";
+$recup_section = mysqli_query($mysqli, $sql2);
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
-        <title><?php echo $_SESSION['lelogin']?> - Votre Espace membre</title>
+        <title><?php echo $_SESSION['lelogin']?> - Espace membre</title>
         <link rel="stylesheet" href="style.css" />
         <script src="monjs.js"></script>
     </head>
     <body>
          <div id="content">
-             <div id="haut"><h1>Espace membre de <a href="./">photos.be</a></h1> 
+             <div id="haut"><h1>Espace membre de <a href="./" >Télépro-photos.fr</a></h1> 
+                 
                 <div id="connect"><?php // texte d'accueil
-                        echo "<h3>Bonjour ".$_SESSION['lenom'].'</h3>';
-                        echo "<p>Vous êtes connecté en tant que <span title='".$_SESSION['ladesc']."'>".$_SESSION['nom_perm']."</span></p>";
+                        echo "<h3>Bonjour ".$_SESSION['nom_perm2'].'</h3>';
+                        echo "<p>Vous êtes connecté en tant que <span title='".$_SESSION['lenom']."'>".$_SESSION['nom_perm']."</span></p>";
                         echo "<h5><a href='deconnect.php'>Déconnexion</a></h5>";
                         
                         // liens  suivant la permission utilisateur
                         switch($_SESSION['laperm']){
                             // si on est l'admin
                             case 0 :
-                               echo "<a href='admin.php'>Administrer le site</a> - <a href='membre.php'>Espace membre</a>";
+                               echo "<a href='admin.php'>Administration</a> - <a href='membre.php'>Espace client</a>";
                                 break;
                             // si on est modérateur
                             case 1:
-                                echo "<a href='modere.php'>Modérer le site</a> - <a href='membre.php'>Espace membre</a>";
+                                echo "<a href='modere.php'>Modération</a> - <a href='membre.php'>Espace client</a>";
                                 break;
-                            // si autre droit (ici simple utilisateur)µ
-                            case 2:
-                                echo "<a href='modere.php'>Modérer le site</a> - <a href='membre.php'>Espace membre</a>";
-                                break;
+                            // si autre droit (ici simple utilisateur)
                             default :
                                 echo "<a href='membre.php'>Espace membre</a>";
                         }?></div>
@@ -150,13 +172,13 @@ $recup_section = mysqli_query($mysqli, $sql);
                     <input type="text" name="letitre" required /><br/>
                    <!-- <input type="hidden" name="MAX_FILE_SIZE" value="50000000" /> -->
                     <input type="file" name="lefichier" required /><br/>
-                    <textarea name="ladesc"></textarea><br/>
+                    <textarea name="ladesc" required></textarea><br/>
                     
                     <input type="submit" value="Envoyer le fichier" /><br/>
                     Sections : <?php
                     // affichage des sections
                     while($ligne = mysqli_fetch_assoc($recup_section)){
-                        echo $ligne['lintitle']." : <input type='checkbox' name='section[]' value='".$ligne['id']."' > - ";
+                        echo $ligne['lintitule']." : <input type='checkbox' name='section[]' value='".$ligne['id']."' > - ";
                     }
                     ?>
                 </form>
@@ -179,6 +201,7 @@ $recup_section = mysqli_query($mysqli, $sql);
                  echo "</div>";
                }
                ?>
+                     
                  </div>
              </div>
             <div id="bas"></div>

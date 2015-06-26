@@ -14,6 +14,7 @@ function upload_originales($fichier,$destination,$ext){
     $sortie = array();
     
     // récupération du nom d'origine
+    
     $nom_origine = $fichier['name'];
     
     // récupération de l'extension du fichier mise en minuscule et sans le .
@@ -31,7 +32,8 @@ function upload_originales($fichier,$destination,$ext){
     if($extension_origine==="jpeg"){ $extension_origine = "jpg"; }
     
     // création du nom final  (appel de la fonction chaine_hasard, pour la chaine de caractère aléatoire)
-    $nom_final = chaine_hasard(25);
+    $ladate=date("YmdHis");
+    $nom_final = $ladate.chaine_hasard(36);
     
     // on a besoin du nom final dans le tableau $sortie si la fonction réussit
     $sortie['poids'] = filesize($fichier['tmp_name']);
@@ -59,6 +61,7 @@ function upload_originales($fichier,$destination,$ext){
  */
 
 function chaine_hasard($nombre_caracteres){
+    
     $caracteres = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,0,1,2,3,4,5,6,7,8,9";
     $tableau = explode(",", $caracteres);
     $nb_element_tab = count($tableau);
@@ -79,9 +82,9 @@ function traite_chaine($chaine){
 /*
  * 
  * Fonction qui crée les images en .jpg proportionelles ou coupées avec centrage avec comme paramètres:
- * creation_img("chemin vers l'originales",
- *  "nom complet du fichier originale sans extension",
- *  "extension de l'originale",
+ * creation_img("chemin vers l'originale",
+ *  "nom complet du fichier original sans extension",
+ *  "extension de l'original",
  *  "dossier de destination",
  *  "largeur en pixel maximum de l'image",
  *  "hauteur maximale en pixel de l'image",

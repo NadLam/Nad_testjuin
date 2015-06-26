@@ -6,7 +6,7 @@ define("DB_MDP", "");
 define("DB_NAME", "nad_testjuin");
 
 // constant contenant la racine du site
-define("CHEMIN_RACINE", "http://localhost/Nad_testjuin/");
+define("CHEMIN_RACINE", "http://localhost/nad_testjuin/");
 
 // nom des dossiers de destination des images (chemin relatif)
 $dossier_ori = "images/originales/"; // dossier de l'image originale
@@ -29,3 +29,4 @@ $mini_qualite = 70;
 
 // formats acceptés en minuscule dans un tableau, séparé par des ','
 $formats_acceptes = array('jpg','jpeg','png');
+
